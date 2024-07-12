@@ -1,0 +1,16 @@
+importlib-metadata==6.7.0
+keras==2.10.0
+matplotlib==3.7.2
+numpy>=1.22,<1.24
+opencv-contrib-python==4.8.0.74
+opencv-python==4.8.0.74
+pandas==2.0.3
+# Install perun from forked repository
+perun @ git+https://github.com/emvollmer/perun.git#egg=perun
+scikit-image>=0.18.3
+scikit-learn
+segmentation-models==1.0.1
+tensorflow==2.10.0
+tensorflow-addons<=0.20.0
+tqdm==4.66.1
+urllib3<2.0
