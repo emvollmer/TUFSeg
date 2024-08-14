@@ -21,7 +21,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-from tufseg.configuration import init_temp_conf, update_conf
+from tufseg.scripts.configuration import init_temp_conf, update_conf
 config = init_temp_conf()
 # --------------------------------------
 _logger = logging.getLogger("train_test_split")
@@ -94,10 +94,11 @@ def main(
 
     global SRC_DIR
     SRC_DIR = Path(source_dir or config['data_root'])
-    assert SRC_DIR.is_dir(), f"Provided source directory {SRC_DIR} is not an existing folder!"
+    assert SRC_DIR.is_dir(), f"Provided source directory '{SRC_DIR}' is not an existing folder!"
 
     masks_dir = Path(SRC_DIR, config['mask_folder'])
     jsons_dir = Path(config['anno_root'])
+    assert jsons_dir.is_dir(), f"Annotations directory '{jsons_dir}' from config does not exist!"
 
     # Update global variable for the category IDs for later cross-referencing
     global CATEGORY_IDs

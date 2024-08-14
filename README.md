@@ -7,25 +7,39 @@ masks generated from json annotation files.
 
 ## Installation
 
-Install the source code with pip, run:
+The code was tested with Python version `3.8`. Tensorflow and keras `2.10` are used for model
+training.
+
+The repository modules can be run directly via command line as described in the READMEs
+throughout the repo. Alternatively, it is installable as a package and can be used f.e.
+in combination with APIs. The installation procedures differ according to the
+descriptions below.
+
+> **NOTE**:
+> The [Perun](https://github.com/Helmholtz-AI-Energy/perun) package is used for energy
+> monitoring. However, for it to work properly in combination with module calls, [this forked
+> and adapted repository](https://github.com/emvollmer/perun.git) is installed instead.
+
+### For direct usage of the modules
+
+To install all required packages, run:
+```
+pip install -r requirements.txt
+```
+
+### For use as a package
+
+Install the source code with pip with:
 
 ```
 pip install .
 ```
-
-The code works with Python `v3.8` and Python `v3.10`. Tensorflow and keras `v2.10` are used for
-training.
 
 For editable installation, run:
 
 ```
 pip install -e .
 ```
-
-> **NOTE**:
-> The [Perun](https://github.com/Helmholtz-AI-Energy/perun) package is used for energy
-> monitoring. However, for it to work properly in combination with module calls, [this forked
-> and adapted repository](https://github.com/emvollmer/perun.git) is installed instead.
 
 ## Repository structure
 
@@ -37,17 +51,19 @@ pip install -e .
 ├── pyproject.toml          ---> configuration file for python project and installation
 ├── requirements-test.txt   ---> requirements file for testing
 ├── requirements.txt        ---> requirements file for library installation
-├── resources
-│   ├── alignment           ---> resources used in raw image registration for alignment
-│   └── calibration         ---> resources used in raw image registration for camera calibration
-├── src/tufseg
+├── tufseg
 │   ├── __init__.py
-│   ├── configuration.py    ---> configuration used across setup and segm_models
-│   ├── registration        ---> optional scripts for merging raw RGB and thermal imagery into RGBTs
-│   ├── segm_models         ---> required scripts for training, evaluating, and inferring with segmentation model(s)
-│   └── setup               ---> required scripts for RGBT processing for model training
-├── tests
-└── tox.ini
+│   ├── resources
+│   │   ├── alignment           ---> resources used in raw image registration for alignment
+│   │   └── calibration         ---> resources used in raw image registration for camera calibration
+│   └── scripts 
+│       ├── __init__.py
+│       ├── configuration.py    ---> configuration used across setup and segm_models
+│       ├── registration        ---> optional scripts for merging raw RGB and thermal imagery into RGBTs
+│       ├── segm_models         ---> required scripts for training, evaluating, and inferring with segmentation model(s)
+│       └── setup		---> required scripts for RGBT processing for model training
+├── tests		   ---> pytest tests
+└── tox.ini		   ---> configuration file for tox tests
 ```
 
 ## License

@@ -24,10 +24,10 @@ from sklearn import metrics as skmetrics
 import tensorflow as tf
 from tqdm import tqdm
 
-from tufseg.segm_models._utils import (
+from tufseg.scripts.segm_models._utils import (
     configure_logging, ModelLoader, ImageProcessor, MaskProcessor
 )
-from tufseg.configuration import read_conf
+from tufseg.scripts.configuration import read_conf
 
 logging.getLogger('h5py').setLevel(logging.ERROR)
 # --------------------------------------

@@ -14,7 +14,7 @@ Example function calls from the terminal are demonstrated below
 #### For training
 
 ```
-python -m scripts.segm_models.train_UNet -dst /path/to/model_unet/outputs/ --channels 3 --processing basic --cfg-options epochs=8
+python -m tufseg.scripts.segm_models.train_UNet -dst /path/to/model_unet/outputs/ --channels 3 --processing basic --cfg-options epochs=8
 ```
 
 - The flags `-src /.../datasets/ -split /.../model_unet/data/` are optional. If the setup scripts were previously executed, you don't have to define these -  the defaults will taken from the config.
@@ -30,14 +30,14 @@ python -m scripts.segm_models.train_UNet -dst /path/to/model_unet/outputs/ --cha
 #### For evaluation
 
 ```
-python -m scripts.segm_models.evaluate_UNet /path/to/model_unet/outputs/2023-08-16-133200/
+python -m tufseg.scripts.segm_models.evaluate_UNet /path/to/model_unet/outputs/2023-08-16-133200/
 ```
 The required path is the path to the model timestamp folder. Optional flags are `-src /.../datasets/` and `-split /.../model_unet/data/`. By default, the values from the training config will be used (saved to `run_config.json` in the model folder).
 
 #### For inference / prediction
 
 ```
-python -m scripts.segm_models.infer_UNet -img /path/to/DJI_0_0001_R.npy -model /path/to/model_unet/outputs/2023-08-16_18-05-23/ -save
+python -m tufseg.scripts.segm_models.infer_UNet -img /path/to/DJI_0_0001_R.npy -model /path/to/model_unet/outputs/2023-08-16_18-05-23/ -save
 ```
 
 - The flag `-mask` can be used if a ground truth segmentation mask exists and should be plotted side by side to the prediction. If such a file exists in the `-img` folder structure, it is used by default.
@@ -52,7 +52,7 @@ python -m scripts.segm_models.infer_UNet -img /path/to/DJI_0_0001_R.npy -model /
 To monitor energy consumption using [perun](https://github.com/Helmholtz-AI-Energy/perun), execute training via the bash script `train.sh` as follows:
 
 ```
-. scripts/segm_models/train.sh -dst /path/to/model_unet/outputs/ --channels 3 --processing vignetting --only-tir --cfg-options epochs=3 --quiet
+. tufseg/scripts/segm_models/train.sh -dst /path/to/model_unet/outputs/ --channels 3 --processing vignetting --only-tir --cfg-options epochs=3 --quiet
 ```
 
 - The flags `--channels 3 --processing vignetting --only-tir` are optional. Without them, the defaults from the config will be chosen: `channels=4`, `processing=basic`, `only_tir=False`
@@ -61,13 +61,13 @@ To monitor energy consumption using [perun](https://github.com/Helmholtz-AI-Ener
 
 What this does is call the train script as follows:
 ```
-perun monitor --format csv -m scripts.segm_models.train_UNet -dst /path/to/model_unet/outputs/ --channels 3 --processing vignetting --only-tir --cfg-options epochs=3
+perun monitor --format csv -m tufseg.scripts.segm_models.train_UNet -dst /path/to/model_unet/outputs/ --channels 3 --processing vignetting --only-tir --cfg-options epochs=3
 ```
 and then copies the perun results into the timestamp model directory that was created during the model run. As usual, the logging results in INFO mode are saved to the same model directory.
 
 After training, the model is automatically evaluated via the below command and using that same timestamp folder as the model directory:
 ```
-python -m scripts.segm_models.evaluate_UNet /path/to/model_unet/outputs/timestamp/
+python -m tufseg.scripts.segm_models.evaluate_UNet /path/to/model_unet/outputs/timestamp/
 ```
 
 > **NOTE:**  

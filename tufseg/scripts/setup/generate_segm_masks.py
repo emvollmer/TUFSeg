@@ -23,7 +23,7 @@ import pandas as pd
 from skimage.draw import polygon2mask
 from tqdm import tqdm
 
-from tufseg.configuration import init_temp_conf, update_conf
+from tufseg.scripts.configuration import init_temp_conf, update_conf
 config = init_temp_conf(delete_existing=True)
 # --------------------------------------
 _logger = logging.getLogger("generate_segm_masks")

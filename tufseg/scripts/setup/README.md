@@ -13,13 +13,13 @@ Example function calls from the terminal are described below.
 
 1. For generating the segmentation masks from the JSON annotation files
 ```
-python -m scripts.setup.generate_segm_masks -j /.../datasets/annotations/jsons/ -i /.../datasets/images/ --save-for-view
+python -m tufseg.scripts.setup.generate_segm_masks -j /.../datasets/annotations/jsons/ -i /.../datasets/images/ --save-for-view
 ```
 The script saves the masks in .npy format, but by adding the `save-for-view` flag, they'll be saved in .png format to the same directory for reviewing the annotations.
 
 2. For splitting the data (images and masks) into train and test datasets
 ```
-python -m scripts.setup.train_test_split -v
+python -m tufseg.scripts.setup.train_test_split -v
 ```
 - The optional flag `-src /.../datasets/` can be set to define the data source. Without it, the config value (saved by `generate_segm_masks.py` is used.
 
@@ -36,7 +36,7 @@ Alternatively to individual module calls, you can execute the whole process at o
 
 Simply run:
 ```
-. scripts/setup/setup.sh -i /.../datasets/images/ -j /.../datasets/annotations/jsons/ -v
+. tufseg/scripts/setup/setup.sh -i /.../datasets/images/ -j /.../datasets/annotations/jsons/ -v
 ```
 
 To create the split data directory to which the preprocessed images themselves can be saved during training, run:

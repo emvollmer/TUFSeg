@@ -38,9 +38,9 @@ from tqdm import tqdm
 from keras.layers import Input, Conv2D
 
 # import module dependencies
-from tufseg.configuration import init_temp_conf, update_conf, cp_conf, _default_config
+from tufseg.scripts.configuration import init_temp_conf, update_conf, cp_conf, _default_config
 config = init_temp_conf()
-from tufseg.segm_models._utils import (
+from tufseg.scripts.segm_models._utils import (
     configure_logging, ImageProcessor, MaskProcessor
 )
 # from scripts.segm_models import utils

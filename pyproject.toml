@@ -43,6 +43,7 @@ version = { file = "VERSION" }
 
 [tool.setuptools]
 include-package-data = true
+py-modules = []
 
 [tool.setuptools.package-data]
 "tufseg" = ["resources/*"]
