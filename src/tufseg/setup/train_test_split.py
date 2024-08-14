@@ -21,7 +21,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-from scripts.configuration import init_temp_conf, update_conf
+from tufseg.configuration import init_temp_conf, update_conf
 config = init_temp_conf()
 # --------------------------------------
 _logger = logging.getLogger("train_test_split")

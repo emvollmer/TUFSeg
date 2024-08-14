@@ -19,10 +19,10 @@ import matplotlib.patches as mpatches
 import numpy as np
 from PIL import Image
 
-from scripts.segm_models._utils import (
+from tufseg.segm_models._utils import (
     configure_logging, ModelLoader, ImageProcessor, MaskProcessor
 )
-from scripts.configuration import read_conf
+from tufseg.configuration import read_conf
 
 # set matplotlib logger to a higher level to suppress debug messages
 logging.getLogger("matplotlib").setLevel(logging.WARNING)

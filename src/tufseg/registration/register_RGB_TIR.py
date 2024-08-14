@@ -18,10 +18,10 @@ from skimage.util import img_as_ubyte
 from tqdm import tqdm
 
 # Own scripts
-from scripts.registration.alignment import calculate_homography, align_image
-from scripts.registration.generate_dirtree import generate_dirtree
-from scripts.registration.undistortion import undistort_image
-from scripts.registration.merging import merge_images
+from tufseg.registration.alignment import calculate_homography, align_image
+from tufseg.registration.generate_dirtree import generate_dirtree
+from tufseg.registration.undistortion import undistort_image
+from tufseg.registration.merging import merge_images
 
 '''
 IMAGE REGISTRATION PROCEDURE:
