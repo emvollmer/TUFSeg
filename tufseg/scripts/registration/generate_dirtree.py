@@ -3,6 +3,7 @@
 import ast
 import argparse
 from tqdm import tqdm
+from typing import List
 from pathlib import Path
 
 """
@@ -15,24 +16,31 @@ a single dataset should be added to already completed preprocessing)
 
 def get_args():
     parser = argparse.ArgumentParser(
-        description='''Generate a directory tree for raw datasets and merging results.''',
+        description='''Generate a directory tree for raw datasets and
+        merging results.''',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--sets-dir', type=Path, help="Directory containing folders for all datasets",
+    group.add_argument('--sets-dir', type=Path,
+                       help="Directory containing folders for all datasets",
                        metavar="SETS_DIR", dest='sets_dir')
-    group.add_argument('--sets-list', nargs='+', help="List containing strings of all dataset names",
+    group.add_argument('--sets-list', nargs='+',
+                       help="List containing strings of all dataset names",
                        metavar="SETS_LIST", dest='sets_list')
     parser.add_argument('-work', '--work-dir', type=Path, required=True,
-                        help="Directory to which raw and merged data should be saved", metavar="WORK_DIR",
-                        dest='work_dir')
-    parser.add_argument('-channels', required=False, default="['2ch', '4ch']", const="['2ch', '4ch']", nargs='?',
-                        choices=["2ch", "4ch", "['2ch', '4ch']"], metavar="CHANNELS", dest='channels_str',
-                        help="Choice of different channels of resulting numpy files, "
-                             "with 4ch = RGBT, 2ch = greyRGB + T")
-    parser.add_argument('-sizes', nargs=2, required=False, default=['640x512', '3750x3000'],
-                        help="Two size format options for results. List the original TIR size first, "
+                        help="Directory to which raw and merged data will be "
+                             "saved", metavar="WORK_DIR", dest='work_dir')
+    parser.add_argument('-channels', required=False, default="['2ch', '4ch']",
+                        const="['2ch', '4ch']", nargs='?',
+                        choices=["2ch", "4ch", "['2ch', '4ch']"],
+                        metavar="CHANNELS", dest='channels_str',
+                        help="Choice of different channels of resulting numpy "
+                             "files, with 4ch = RGBT, 2ch = greyRGB + T")
+    parser.add_argument('-sizes', nargs=2, required=False,
+                        default=['640x512', '3750x3000'],
+                        help="Two size format options for results. "
+                             "List the original TIR size first, "
                              "then the destination size for re-/upscaling.",
                         metavar="SIZES", dest='sizes_list')
     return parser.parse_args()
@@ -47,8 +55,10 @@ def main(
 ):
 
     if sets_dir is not None:
-        assert Path(sets_dir).exists(), \
-            "Provided sets-dir does not exist! Please provide an existing path."
+        if not Path(sets_dir).exists():
+            raise FileNotFoundError(
+                f"Provided sets_dir '{sets_dir}' does not exist!"
+            )
 
         set_names = [i.stem for i in sorted(list(sets_dir.glob("[!.]*")))]
 
@@ -71,21 +81,28 @@ def main(
 def generate_dirtree(
         dataset_names: list,
         base_dir: Path,
-        img_channels=['2ch', '4ch'],
-        img_sizes=['640x512', '3750x3000'],
+        img_channels: List[str] = ['2ch', '4ch'],
+        img_sizes: List[str] = ['640x512', '3750x3000'],
 ):
-    assert img_sizes, \
-        "Please provide desired image size in list form, i.e. ['640x512', '3750x3000']"
+    if (
+            not isinstance(img_sizes, list)
+            or not all(isinstance(i, str) for i in img_sizes)
+    ):
+        raise ValueError(
+            "img_sizes must be a list of strings, f.e. ['320x256', '640x512']."
+        )
 
     for dataset_name in tqdm(dataset_names):
-        generate_dataset_dirtree(dataset_name, base_dir, img_channels, img_sizes)
+        generate_dataset_dirtree(
+            dataset_name, base_dir, img_channels, img_sizes
+        )
 
 
 def generate_dataset_dirtree(
         dataset_name: str,
         work_dir: Path,
-        img_channels=['2ch', '4ch'],
-        img_sizes=['640x512', '3750x3000'],
+        img_channels: List[str] = ['2ch', '4ch'],
+        img_sizes: List[str] = ['640x512', '3750x3000'],
 ):
     directory_list = [
         Path(work_dir, "raw", "images", dataset_name, "RGB"),
@@ -94,7 +111,8 @@ def generate_dataset_dirtree(
     ]
 
     for s in img_sizes:
-        # # uncomment to only add a folder tree if multiple different image sizes are provided
+        # # uncomment to only add a folder tree if multiple different
+        # # image sizes are provided
         # if len(img_sizes) == 1:
         #     s = ""
 
@@ -102,7 +120,8 @@ def generate_dataset_dirtree(
             Path(work_dir, "raw", "images", dataset_name, "RGB_aligned", s)
         )
         for ch in img_channels:
-            # # uncomment to only add a folder tree if multiple different image channel options are provided
+            # # uncomment to only add a folder tree if multiple different
+            # # image channel options are provided
             # if len(img_channels) == 1:
             #     ch = ""
 

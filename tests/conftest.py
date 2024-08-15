@@ -1,5 +1,5 @@
 from pytest import fixture
-from tufseg.scripts import configuration
+# from tufseg.scripts import configuration
 
 
 @fixture(scope="session")

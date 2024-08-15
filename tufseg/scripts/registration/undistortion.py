@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 
 '''
-Helper functions for STEP 1 in the image preprocessing procedure: 
+Helper functions for STEP 1 in the image preprocessing procedure:
 Undistort RGB images using the given calibration file.
 The calibration file includes the camera's intrinsic matrix and
 distortion coefficients. It is calculated using the script in utils.

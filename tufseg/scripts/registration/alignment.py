@@ -27,15 +27,17 @@ def calculate_homography(scale_factor: float, sizes: list,
     Calculate homography matrices required for aligning images.
 
     Args:
-        scale_factor: Factor to scale up to required format (here: 640x512 to 3750x3000)
+        scale_factor: Factor to scale up to required format
+                      (here: 640x512 to 3750x3000)
         sizes: List of sizes that are chosen from for homography calculation
-        homography_dir: Directory containing either homography matrices or CSV files
-         for RGB and TIR featurepoints to calculate the homography
+        homography_dir: Directory containing either homography matrices
+                        or CSV files for RGB and TIR featurepoints
+                        to calculate the homography
 
     Returns:
         hom, hom_resc: homography matrix, rescaled homography matrix
     """
-    # check if homography was already calculated and saved, otherwise calculate it
+    # check if homography was previously saved, otherwise calculate it
     hom_path = Path(homography_dir, f"homography_matrix_{sizes[0]}.npz")
     hom_resc_path = Path(homography_dir, f"homography_matrix_{sizes[1]}.npz")
 
@@ -48,14 +50,21 @@ def calculate_homography(scale_factor: float, sizes: list,
 
     else:
         fp_paths = sorted(list(Path(homography_dir).glob("*.csv")))
-        assert fp_paths, "No files in .csv format provided in the featurepoint directory!"
+        if not fp_paths:
+            raise FileNotFoundError(
+                "No files in .csv format in the featurepoint directory!"
+            )
 
         try:
-            rgb_csv_path = [s for s in fp_paths if "RGB" in str(s) or "rgb" in str(s)][0]
-            tir_csv_path = [s for s in fp_paths if "TIR" in str(s) or "tir" in str(s)][0]
-        except IndexError:
-            raise Exception("Invalid .csv file naming: No feature-point files found "
-                            "for both RGB and TIR in the featurepoint directory!") from None
+            rgb_csv_path = [s for s in fp_paths
+                            if "RGB" in str(s) or "rgb" in str(s)][0]
+            tir_csv_path = [s for s in fp_paths
+                            if "TIR" in str(s) or "tir" in str(s)][0]
+        except IndexError as e:
+            raise IndexError(
+                "Invalid .csv file naming: No feature-point files found "
+                "for both RGB and TIR in the feature-point directory!"
+            ) from e
 
         # Load source points from csv path
         with open(rgb_csv_path, 'r') as f:
@@ -66,14 +75,17 @@ def calculate_homography(scale_factor: float, sizes: list,
             reader = csv.reader(f, delimiter=',')
             TIR_pts = np.array(list(reader)).astype(np.float32)
 
-        # Rescale TIR (destination) points to image size according to rescaling factor
+        # Rescale TIR (dest) points to image size according to rescaling factor
         # NOTE: This is a hardcoded rescaling for this model camera
         _logger.debug(f"TIR (destination) points pre-scaling: {TIR_pts}")
         TIR_pts_resc = (np.rint(TIR_pts * scale_factor))
         _logger.debug(f"TIR (destination) points post-scaling: {TIR_pts_resc}")
 
-        assert RGB_pts.shape == TIR_pts_resc.shape, \
-            f"RGB/source ({RGB_pts.shape}) and TIR/destination ({TIR_pts_resc.shape}) shapes must match."
+        if RGB_pts.shape != TIR_pts_resc.shape:
+            raise ValueError(
+                f"RGB/source ({RGB_pts.shape}) and TIR/destination "
+                f"({TIR_pts_resc.shape}) shapes must match."
+            )
 
         # Calculate original and rescaled Homography matrices
         hom, _ = cv2.findHomography(RGB_pts, TIR_pts)
@@ -117,8 +129,10 @@ def align_image(tir_stem: str, rgb_stem: str,
 
         cv2.imwrite(str(out_dir / f"{tir_stem}.jpg"), tir[:, :, 0])
         cv2.imwrite(str(out_dir / f"{rgb_stem}_aligned.jpg"), aligned_rgb)
-        cv2.imwrite(str(out_dir / f"{tir_stem}_overlaid_RGB_TIR.jpg"), combined_image)
+        cv2.imwrite(str(out_dir / f"{tir_stem}_overlaid_RGB_TIR.jpg"),
+                    combined_image)
 
-        _logger.debug(f"aligned and saved ...{str(out_dir.stem)} with overlaying details")
+        _logger.debug(f"aligned and saved ...{str(out_dir.stem)} "
+                      f"with overlaying details")
 
     return aligned_rgb

@@ -25,17 +25,21 @@ _default_config = {
         },
         "annotations": {
             "descriptor": "thermal_objects",
-            "classes": ["building", "car (cold)", "car (warm)", "manhole (round) cold",
-                        "manhole (round) warm", "manhole (square) cold", "manhole (square) warm",
-                        "miscellaneous", "person", "street lamp cold", "street lamp warm"]
+            "classes": ["building", "car (cold)", "car (warm)",
+                        "manhole (round) cold", "manhole (round) warm",
+                        "manhole (square) cold", "manhole (square) warm",
+                        "miscellaneous", "person",
+                        "street lamp cold", "street lamp warm"]
         },
         "masks": {
-            "labels": ["building", "car (cold)", "car (warm)", "manhole (round)",
-                       "manhole (square)", "miscellaneous", "person", "street lamp"],
-            "custom_colors": [[0.16, 0.16, 0.16], "brown", "blue", "yellowgreen", "yellow",
-                              "magenta", "red", "orange", "lightgray", "aqua", "white", "coral",
-                              "teal", "pink", "goldenrod", "green", "plum", "purple", "silver",
-                              "indigo"]
+            "labels": ["building", "car (cold)", "car (warm)",
+                       "manhole (round)", "manhole (square)",
+                       "miscellaneous", "person", "street lamp"],
+            "custom_colors": [[0.16, 0.16, 0.16], "brown", "blue",
+                              "yellowgreen", "yellow", "magenta", "red",
+                              "orange", "lightgray", "aqua", "white",
+                              "coral", "teal", "pink", "goldenrod",
+                              "green", "plum", "purple", "silver", "indigo"]
         }
     },
     "model": {
@@ -103,16 +107,19 @@ _default_config = {
 def init_temp_conf(delete_existing: bool = False):
     """
     Create a temporary config file according to _default_config.
-    Check if temporary file has been created and load config from there if that is the case
+    Check if temporary file has been created and load config from there
+    if that is the case
 
-    :param delete_existing: (bool) If True, creates new temp config, even if one already exists
+    :param delete_existing: (bool) If True, creates new temp config,
+    even if one already exists
     :returns: config - dictionary of configuration settings
     """
     if temp_conf_path.is_file() and delete_existing is False:
         try:
             config = read_conf(temp_conf_path)
         except json.JSONDecodeError:
-            print("Previously saved config is corrupted or empty. Deleting and recreating...")
+            print("Previously saved config is corrupted or empty. "
+                  "Deleting and recreating...")
             temp_conf_path.unlink()
 
             config = _default_config
@@ -133,7 +140,10 @@ def write_conf(conf: dict, config_path: Path):
     :raises TypeError: If config_path not a .json
     """
     if config_path.suffix not in ['.json']:
-        raise TypeError(f"Only .json configs allowed, but config is of type {config_path.suffix}!")
+        raise TypeError(
+            f"Only .json configs allowed, but config is of"
+            f"type {config_path.suffix}!"
+        )
 
     with open(config_path, "w") as f:
         json.dump(conf, f, indent=4)
@@ -149,10 +159,15 @@ def read_conf(config_path: Path) -> dict:
     :returns: conf - dictionary of configuration settings
     """
     if config_path.suffix not in ['.json']:
-        raise TypeError(f"Only .json configs allowed, but config is of type {config_path.suffix}!")
+        raise TypeError(
+            f"Only .json configs allowed, but config is of"
+            f" type {config_path.suffix}!"
+        )
 
     if not config_path.is_file():
-        raise FileNotFoundError(f"No configuration file found at '{config_path}'")
+        raise FileNotFoundError(
+            f"No configuration file found at '{config_path}'"
+        )
 
     with open(config_path, "r") as f:
         conf = json.load(f)
@@ -210,7 +225,8 @@ def flatten_dict(d: dict) -> dict:
 def cp_conf(dst_dir: Path):
     """
     Copy temporary config file to destination folder.
-    Revert the temporary file back to the default values except for directories.
+    Revert the temporary file back to the default values
+    except for directories.
 
     :raises OSError: If file can't be copied
     :param dst_dir: Path of folder to which to copy config
@@ -221,13 +237,17 @@ def cp_conf(dst_dir: Path):
     try:
         shutil.copy(temp_conf_path, Path(dst_dir, "run_config.json"))
     except OSError as e:
-        print(f"The temporary configuration file could not be moved to "
-              f"the destination folder '{dst_dir}'.\nAn error occurred: {e}")
+        raise OSError(
+            f"The temporary configuration file could not be moved to "
+            f"the destination folder '{dst_dir}'!"
+        ) from e
 
-    # Revert remaining temporary file to the default values, but keep the directories
+    # Revert remaining temporary file to the default, but keep the directories
     temp_config = read_conf(temp_conf_path)
 
-    default_values = ['data', 'model', 'train', 'eval', 'model_root', 'model_folder']
+    default_values = [
+        'data', 'model', 'train', 'eval', 'model_root', 'model_folder'
+    ]
     for v in default_values:
         temp_config[v] = _default_config[v]
 
@@ -247,5 +267,7 @@ def mv_conf(dst_dir: Path):
     try:
         shutil.move(temp_conf_path, Path(dst_dir, "run_config.json"))
     except OSError as e:
-        print(f"The temporary configuration file could not be moved to "
-              f"the destination folder '{dst_dir}'.\nAn error occurred: {e}")
+        raise OSError(
+            f"The temporary configuration file could not be moved to "
+            f"the destination folder '{dst_dir}'!"
+        ) from e

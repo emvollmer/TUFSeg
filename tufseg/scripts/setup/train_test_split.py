@@ -37,34 +37,50 @@ DATASET_NAMES = []
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Split data into test and train sets.')
+    parser = argparse.ArgumentParser(
+        description='Split data into test and train sets.'
+    )
     parser.add_argument('-src', '--src-dir', dest='source_dir',
-                        help='Path to directory containing images and segmentation masks '
-                             'subfolders. If none is provided, the directory from the config '
+                        help='Path to directory containing images and '
+                             'segmentation masks subfolders. If none is '
+                             'provided, the directory from the config '
                              'will be used.')
     parser.add_argument('-dst', '--dst-dir', dest='destination_dir',
-                        help='Path to destination directory for saving train / test split '
-                             'If none is provided, the train.txt and test.txt files will '
-                             'be saved to the source directory.')
-    parser.add_argument('--test-size', type=float, default=0.2, dest='test_size',
-                        help="Approximate size the test dataset should have (decimal)")
-    parser.add_argument('--random-state', type=int, default=1, dest='random_state',
-                        help="Number to generate reproducible random statistical split")
-    parser.add_argument('--no-anno-check', action='store_true', dest='no_anno_check',
-                        help='Include to NOT take annotation distribution into account in split')
-    parser.add_argument('--no-class-check', action='store_true', dest='no_class_check',
-                        help='Include to NOT take class distribution into account in split')
-    parser.add_argument('--no-set-check', action='store_true', dest='no_set_check',
-                        help='Include to NOT take dataset distribution into account in split')
+                        help='Path to destination directory for saving train /'
+                             ' test split. If none is provided, the train.txt '
+                             'and test.txt files will be saved to the '
+                             'source directory.')
+    parser.add_argument('--test-size', dest='test_size',
+                        type=float, default=0.2,
+                        help="Approx percent of the test dataset (decimal)")
+    parser.add_argument('--random-state', dest='random_state',
+                        type=int, default=1,
+                        help="Number to generate reproducible random "
+                             "statistical split")
+    parser.add_argument('--no-anno-check',
+                        action='store_true', dest='no_anno_check',
+                        help='Include to NOT take annotation distribution '
+                             'into account in split')
+    parser.add_argument('--no-class-check',
+                        action='store_true', dest='no_class_check',
+                        help='Include to NOT take class distribution '
+                             'into account in split')
+    parser.add_argument('--no-set-check',
+                        action='store_true', dest='no_set_check',
+                        help='Include to NOT take dataset distribution '
+                             'into account in split')
 
     # Combine log level options into one with a default value
     log_levels_group = parser.add_mutually_exclusive_group()
-    log_levels_group.add_argument('--quiet', dest='log_level', action='store_const',
-                                  const=logging.WARNING, help='Show only warnings.')
-    log_levels_group.add_argument('-v', '--verbose', dest='log_level', action='store_const',
-                                  const=logging.INFO, help='Show verbose log messages (info).')
-    log_levels_group.add_argument('-vv', '--very-verbose', dest='log_level', action='store_const',
-                                  const=logging.DEBUG, help='Show detailed log messages (debug).')
+    log_levels_group.add_argument('--quiet', dest='log_level',
+                                  action='store_const', const=logging.WARNING,
+                                  help='Show only warnings.')
+    log_levels_group.add_argument('-v', '--verbose', dest='log_level',
+                                  action='store_const', const=logging.INFO,
+                                  help='Show verbose log messages (info).')
+    log_levels_group.add_argument('-vv', '--very-verbose', dest='log_level',
+                                  action='store_const', const=logging.DEBUG,
+                                  help='Show detailed log messages (debug).')
     log_levels_group.set_defaults(log_level=logging.WARNING)
     return parser.parse_args()
 
@@ -80,38 +96,48 @@ def main(
         log_level=logging.WARNING
 ):
     """
-    Split all annotated data into train and test datasets according to user-provided inputs.
+    Split annotated data into train and test sets according to user choices.
     """
-    logging.basicConfig(stream=sys.stdout,
-                        level=log_level,
-                        datefmt='%Y-%m-%d %H:%M',
-                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=log_level,
+        datefmt='%Y-%m-%d %H:%M',
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
     main_args = locals()
     for k, v in main_args.items():
         _logger.info(f'Parsed user argument - {k}:\t{v}')
 
-
     global SRC_DIR
     SRC_DIR = Path(source_dir or config['data_root'])
-    assert SRC_DIR.is_dir(), f"Provided source directory '{SRC_DIR}' is not an existing folder!"
+    if not SRC_DIR.is_dir():
+        raise FileNotFoundError(
+            f"Provided source directory '{SRC_DIR}' does not exist!"
+        )
 
     masks_dir = Path(SRC_DIR, config['mask_folder'])
     jsons_dir = Path(config['anno_root'])
-    assert jsons_dir.is_dir(), f"Annotations directory '{jsons_dir}' from config does not exist!"
+    if not jsons_dir.is_dir():
+        raise FileNotFoundError(
+            f"Annotations directory '{jsons_dir}' from config does not exist!"
+        )
 
-    # Update global variable for the category IDs for later cross-referencing
     global CATEGORY_IDs
     CATEGORY_IDs = [idx for idx, i in enumerate(labels)]
-    _logger.debug(f"{len(CATEGORY_IDs)} different categories annotated: {labels}")
-    # Update global variable for dataset folder names
+    _logger.debug(
+        f"{len(CATEGORY_IDs)} different categories annotated: {labels}"
+    )
+
     global DATASET_NAMES
     DATASET_NAMES = [dn.name for dn in sorted(masks_dir.glob("*"))
                      if re.match(r'^[a-zA-Z]+_\d+$', dn.name)]
-    _logger.debug(f"{len(DATASET_NAMES)} different datasets provided: {DATASET_NAMES}")
+    _logger.debug(
+        f"{len(DATASET_NAMES)} different datasets provided: {DATASET_NAMES}"
+    )
 
-    # list of annotated image names including dataset folder paths for unambiguous identification
-    # --- Don't use images_dir here because maybe not all the images were annotated!
+    # Get list of annotated images (incl folder) for unambiguous identification
+    # --- Don't use images_dir because maybe not all images were annotated!
     image_identifiers = [Path(i.parent.name, i.name)
                          for i in sorted(masks_dir.glob("**/*.npy"))]
 
@@ -162,13 +188,15 @@ def get_all_annotations(json_dir):
             img_annos = []
             for region in regions:
 
-                # Find region category id while ensuring it matches the list of possible categories
+                # Find region category id, ensure it matches a valid category
                 region_label = region['region_attributes'][descriptor]
 
                 try:
                     region_label_id = labels.index(region_label)
                 except ValueError:
-                    region_label = difflib.get_close_matches(region_label, labels)[0]
+                    region_label = difflib.get_close_matches(
+                        region_label, labels
+                    )[0]
                     region_label_id = labels.index(region_label)
 
                 # Add category ID to image category list
@@ -182,20 +210,25 @@ def get_all_annotations(json_dir):
 
 def split_train_test(
         images: list, annotations: list, test_size: float, random_state=1,
-        check_anno_distrib=True, check_class_distrib=True, check_set_distrib=True
+        check_anno_distrib=True,
+        check_class_distrib=True,
+        check_set_distrib=True
 ):
     """
     Split list of images and matching annotations into test / train datasets
-    according to the size provided by the user and checks according to user choices.
+    according to the size provided by the user and checks according to user
+    choices.
 
     Args:
         images: (list) List containing image identifying paths
-        annotations: (list) List of sublists annotation category IDs - one for each image
-        test_size: (float) percentage of test dataset i.e. 0.2 would make a 20%-80% split
-        random_state: (int) randomness value - set to value to be able to reproduce split
-        check_anno_distrib: (bool) set to True to include an annotation distribution check
-        check_class_distrib: (bool) set to True to include a class label distribution check
-        check_set_distrib: (bool) set to True to include a dataset distribution check
+        annotations: (list) Lists of annotation category IDs for each image
+        test_size: (float) percentage of test dataset
+                            - i.e. 0.2 would make a 20%-80% split
+        random_state: (int) randomness value
+                            - define to be able to reproduce split
+        check_anno_distrib: (bool) True includes annotation distribution check
+        check_class_distrib: (bool) True includes class distribution check
+        check_set_distrib: (bool) True includes a dataset distribution check
 
     Returns:
         images_train - list of train images,
@@ -203,55 +236,89 @@ def split_train_test(
     """
     # Use sklearn to split images into two lists
     images_train, images_test, annotations_train, annotations_test = \
-        train_test_split(images, annotations, test_size=test_size, random_state=random_state)
+        train_test_split(
+            images, annotations, test_size=test_size, random_state=random_state
+        )
 
     # Calculate the distribution of annotations in the train and test sets
     train_counts = sum(len(sublist) for sublist in annotations_train)
     test_counts = sum(len(sublist) for sublist in annotations_test)
 
-    _logger.debug(overview(images, test_size, train_counts, test_counts, images_train, images_test))
+    _logger.debug(overview(
+        images, test_size, train_counts, test_counts, images_train, images_test
+    ))
 
     if check_anno_distrib:
-        # Check if the distribution of annotations is too skewed - allow for +/- 5%
-        true_test_size = test_counts / sum(len(sublist) for sublist in annotations)
+        # Check skewness of the annotation distribution - allow for +/- 5%
+        true_test_size = (
+            test_counts / sum(len(sublist) for sublist in annotations)
+        )
         if true_test_size < np.maximum(0, test_size - 0.05) or \
                 true_test_size > np.minimum(1, test_size + 0.05):
-            _logger.warning(f"Current split is too skewed based on annotation counts! "
-                            f"Reshuffling (random state: {random_state + 1})...")
-            return split_train_test(images, annotations, test_size, random_state=random_state + 1)
+            _logger.warning(
+                f"Current split is too skewed based on annotation counts! "
+                f"Reshuffling (random state: {random_state + 1})..."
+            )
+            return split_train_test(
+                images, annotations, test_size, random_state=random_state + 1
+            )
 
     if check_class_distrib:
         # Check if all classes are represented in test and train datasets
-        missing_ids_train = [cat_id for cat_id in CATEGORY_IDs if
-                             not any(cat_id in sublist for sublist in annotations_train)]
-        missing_ids_test = [cat_id for cat_id in CATEGORY_IDs if
-                            not any(cat_id in sublist for sublist in annotations_test)]
+        missing_ids_train = [
+            cat_id for cat_id in CATEGORY_IDs if
+            not any(cat_id in sublist for sublist in annotations_train)
+        ]
+        missing_ids_test = [
+            cat_id for cat_id in CATEGORY_IDs if
+            not any(cat_id in sublist for sublist in annotations_test)
+        ]
         if missing_ids_test or missing_ids_train:
-            _logger.warning(f"Current split doesn't have all class categories in both "
-                            f"train/test! Reshuffling (random state: {random_state + 1})...")
-            return split_train_test(images, annotations, test_size, random_state=random_state + 1)
+            _logger.warning(
+                f"Current split doesn't have all class categories in both "
+                f"train/test! Reshuffling (random state: {random_state + 1})."
+            )
+            return split_train_test(
+                images, annotations, test_size, random_state=random_state + 1
+            )
 
     if check_set_distrib:
         # Check if all datasets are represented in test and train datasets
-        missing_dataset_train = [dataset for dataset in DATASET_NAMES if dataset not in
-                                 [img_path.parent.name for img_path in images_train]]
-        missing_dataset_test = [dataset for dataset in DATASET_NAMES if dataset not in
-                                [img_path.parent.name for img_path in images_test]]
+        missing_dataset_train = [
+            dataset for dataset in DATASET_NAMES if dataset not in
+            [img_path.parent.name for img_path in images_train]
+        ]
+        missing_dataset_test = [
+            dataset for dataset in DATASET_NAMES if dataset not in
+            [img_path.parent.name for img_path in images_test]
+        ]
         if missing_dataset_test or missing_dataset_train:
-            _logger.warning(f"Current split doesn't have images from all datasets in both "
-                            f"train/test. Reshuffling (random state: {random_state + 1})...")
-            return split_train_test(images, annotations, test_size, random_state=random_state + 3)
+            _logger.warning(
+                f"Current split doesn't have images from all datasets in both "
+                f"train/test. Reshuffling (random state: {random_state + 1})."
+            )
+            return split_train_test(
+                images, annotations, test_size, random_state=random_state + 3
+            )
 
     _logger.info(f"Suitable split found at random_state {random_state}.")
-    _logger.info(overview(images, test_size, train_counts, test_counts, images_train, images_test))
+    _logger.info(overview(
+        images, test_size,
+        train_counts, test_counts,
+        images_train, images_test
+    ))
     return images_train, images_test
 
 
-def overview(images, test_size, train_counts, test_counts, images_train, images_test):
+def overview(
+        images, test_size,
+        train_counts, test_counts,
+        images_train, images_test
+):
     print_message = \
         f"Dataset split with user input {test_size * 100}% test, " \
-        f"{len(images)} images and {train_counts + test_counts} annotations:\n" \
-        f"- train:\t{len(images_train)} images " \
+        f"{len(images)} images and {train_counts + test_counts} annotations:" \
+        f"\n- train:\t{len(images_train)} images " \
         f"({round(len(images_train) / len(images) * 100, 1)}%), " \
         f"{train_counts} annotations " \
         f"({round(train_counts / (train_counts + test_counts) * 100, 1)}%)" \
@@ -268,7 +335,9 @@ def build_dirtree():
     Create directory tree for test train split using dataset folder names
     """
     directory_list = [
-        Path(DST_DIR, s, i, d) for s in ["train", "test"] for i in ["images", "masks"]
+        Path(DST_DIR, s, i, d)
+        for s in ["train", "test"]
+        for i in ["images", "masks"]
         for d in DATASET_NAMES
     ]
 
@@ -310,8 +379,10 @@ def save_train_test_split(images_train: list, images_test: list):
     with open(test_txt, "w") as f:
         f.write('\n'.join(images_test))
 
-    _logger.info(f"Train and test image path identifiers saved to "
-                 f"'{train_txt}' and '{test_txt}'.")
+    _logger.info(
+        f"Train and test image path identifiers saved to "
+        f"'{train_txt}' and '{test_txt}'."
+    )
 
 
 if __name__ == "__main__":
