@@ -170,10 +170,10 @@ def evaluate_sklearn_imagewise(X_test, y_test, model):
         "combining scores."
     )
 
-    sklearn_metrics = config['eval']['SKLEARN_METRICS']
+    sklearn_metrics = config['eval']['SKLEARN_METRICS']     # noqa: F821
     total_scores = {metric: [] for metric in sklearn_metrics.keys()}
 
-    classes = config['data']['masks']['labels']
+    classes = config['data']['masks']['labels']     # noqa: F821
     classes.insert(0, "background")
     classwise_scores = {metric: {label: [] for label in classes}
                         for metric in sklearn_metrics.keys()}
@@ -279,7 +279,7 @@ def evaluate_sklearn_holistic(X_test, y_test, model):
     )
 
     mean_scores = {}
-    for name, attrib in config['eval']['SKLEARN_METRICS'].items():
+    for name, attrib in config['eval']['SKLEARN_METRICS'].items():   # noqa: E501,F821
         # predict over the entire dataset
         all_predictions = model.predict(X_test)
         all_class_predictions = np.argmax(all_predictions, axis=-1)

@@ -154,7 +154,7 @@ def main(
     _logger.info('---TRAINING LOG---')
 
     # check for only_tir flag, which requires 3 channel inputs
-    if channels != 3 and only_tir == True:
+    if channels != 3 and only_tir is True:
         _logger.info(
             f'Flag "only_tir" has been set, so only 3 channel inputs will be '
             f'used. Changing currently defined channel value of {channels} '

@@ -27,11 +27,11 @@ from keras.models import load_model
 import numpy as np
 from skimage.filters import unsharp_mask
 from skimage.transform import resize
-import tensorflow_addons as tfa     # NOTE: called during eval of config value!
+import tensorflow_addons as tfa     # noqa: F401    # Required for config call
 from tqdm import tqdm
 
 os.environ["SM_FRAMEWORK"] = "tf.keras"
-import segmentation_models as sm    # NOTE: called during eval of config value!
+import segmentation_models as sm    # noqa: F401    # Required for config call
 # --------------------------------------
 logging.getLogger('h5py').setLevel(logging.ERROR)
 _logger = logging.getLogger(__name__)
@@ -317,7 +317,7 @@ class ImageProcessor(Base):
         tir_img = self._remove_vignetting(tir_img)
 
         # --- if only_tir flag is True, use only T channel
-        if self.only_tir == True:
+        if self.only_tir is True:
             preproc_img = np.stack((tir_img, tir_img, tir_img), axis=2)
         else:
             preproc_img = self._stack_array(rgb_img, tir_img)

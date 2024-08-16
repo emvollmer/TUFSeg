@@ -195,7 +195,7 @@ def plot(src_img_path: Path, proc_img: np.ndarray,
     img = np.load(str(src_img_path))
 
     # create coloured mask of predictions
-    colormap = ListedColormap(config['data']['masks']['custom_colors'])
+    colormap = ListedColormap(config['data']['masks']['custom_colors'])    # noqa: E501,F821
     rgb_infer_mask = (colormap(infer_mask) * 255).astype(np.uint8)[:, :, 0:3]
 
     # Create 3x1 subfigures
@@ -236,7 +236,7 @@ def plot(src_img_path: Path, proc_img: np.ndarray,
 
         elif row == 2:
             # third row: class predictions output with color legend
-            labels = config['data']['masks']['labels']
+            labels = config['data']['masks']['labels']  # noqa: F821
             legend_patches = [
                 mpatches.Patch(color=colormap(i + 1), label=labels[i])
                 for i in range(len(labels))

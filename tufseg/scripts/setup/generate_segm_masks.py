@@ -353,7 +353,7 @@ def create_masks(anno_df, dst_dir, save_for_viewing=False):
 
             # create mask with background = 0 and annotations = label_id + 1
             mc_mask = np.where(
-                mask == True,
+                mask == True,   # noqa: E712
                 int(label_id_list[idx]) + 1,
                 0
             ).astype(np.uint8)
