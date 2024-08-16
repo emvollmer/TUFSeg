@@ -21,8 +21,8 @@ to which the raw data can be stored and all results saved.
 This can be accomplished by running the `generate_dirtree.py` script in one of two ways:
 
 ```
-python3 -m scripts.registration.generate_dirtree --sets-dir path/to/dataset(s) --work-dir WORK_DIR
-python3 -m scripts.registration.generate_dirtree --sets-list KA_01 KA_02 --work-dir WORK_DIR
+python3 -m tufseg.scripts.registration.generate_dirtree --sets-dir path/to/dataset(s) --work-dir WORK_DIR
+python3 -m tufseg.scripts.registration.generate_dirtree --sets-list KA_01 KA_02 --work-dir WORK_DIR
 ```
 
 The tree will be initialised depending on the names of the datasets.
@@ -55,7 +55,7 @@ All three steps are performed using the `register_RGB_TIR.py` script.
 It can be called using all default values as follows:
 
 ```
-python3 -m scripts.registration.register_RGB_TIR --work-dir WORK_DIR -n 5
+python3 -m tufseg.scripts.registration.register_RGB_TIR --work-dir WORK_DIR -n 5
 ```
 with the working directory the same as above and the number of jobs (`-n`) as many as you want to run in parallel.
 
@@ -70,8 +70,7 @@ The required inputs are defaulted to be the `resources/` directory. These includ
 A more complex call with changed defaults could look as follows:
 
 ```
-python3 -m scripts.registration.register_RGB_TIR --work-dir WORK_DIR --calibration-path CALIB_PATH --homography-dir HOM_DIR
---channels 2ch --sizes 640x512 5000x4000 -nd -n 5 -vv
+python3 -m tufseg.scripts.registration.register_RGB_TIR --work-dir WORK_DIR --calibration-path CALIB_PATH --homography-dir HOM_DIR --channels 2ch --sizes 640x512 5000x4000 -nd -n 5 -vv
 ```
 Use the `--help` flag for more information.
 
