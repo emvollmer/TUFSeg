@@ -5,6 +5,8 @@ using the [segmentation_models toolbox](https://github.com/qubvel/segmentation_m
 The popular U-Net is used as the base and retrained on differently processed RGBT datasets with
 masks generated from json annotation files.
 
+https://github.com/user-attachments/assets/98e3f145-a861-4bda-80e8-eb9f072cdeab
+
 ## Installation
 
 The code was tested with Python version `3.8`. Tensorflow and keras `2.10` are used for model
