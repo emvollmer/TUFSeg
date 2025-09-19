@@ -33,7 +33,7 @@ _default_config = {
         },
         "masks": {
             "labels": ["building", "car (cold)", "car (warm)",
-                       "manhole (round)", "manhole (square)",
+                       "manhole (cold)", "manhole (warm)",
                        "miscellaneous", "person", "street lamp"],
             "custom_colors": [[0.16, 0.16, 0.16], "brown", "blue",
                               "yellowgreen", "yellow", "magenta", "red",
